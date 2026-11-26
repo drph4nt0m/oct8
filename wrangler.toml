@@ -1,0 +1,33 @@
+name = "oct8-ip-service"
+main = "src/api/workers/worker.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = [ "nodejs_compat" ]
+
+routes = [
+  { pattern = "oct8.net", custom_domain = true, zone_name = "oct8.net" }
+]
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+
+[placement]
+mode = "smart"
+
+[vars]
+MODE = "binary"
+LOG_LEVEL = "info"
+MAXMIND_CITY_FILE = "GeoLite2-City.mmdb"
+MAXMIND_ASN_FILE = "GeoLite2-ASN.mmdb"
+INSIGHT_BINARY_FILE = "insight.bin"
+
+[[r2_buckets]]
+binding = "INSIGHT_DATA"
+bucket_name = "oct8-data"

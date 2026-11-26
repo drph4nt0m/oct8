@@ -1,0 +1,57 @@
+{
+  "name": "oct8",
+  "version": "1.0.0",
+  "description": "Oct8 IP Service",
+  "main": "dist/index.js",
+  "type": "module",
+  "imports": {
+    "#core/*": "./dist/core/*.js",
+    "#infra/*": "./dist/infra/*.js",
+    "#api/*": "./dist/api/*.js",
+    "#services/*": "./dist/services/*.js",
+    "#tests/*": "./dist/tests/*.js"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:remote": "wrangler dev --remote",
+    "build": "tsc",
+    "lint": "eslint src",
+    "format": "prettier --write src/**/*.ts",
+    "update-db": "tsx scripts/update-db.ts",
+    "test": "vitest run",
+    "clean": "rm -rf dist",
+    "check:types": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "deploy:data": "./scripts/deploy-data.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.11",
+    "@typescript-eslint/eslint-plugin": "^8.74.0",
+    "@typescript-eslint/parser": "^8.74.0",
+    "@vitest/coverage-v8": "^5.1.2",
+    "dotenv": "^18.0.10",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-no-relative-import-paths": "^1.7.3",
+    "eslint-plugin-prettier": "^5.5.7",
+    "prettier": "^3.10.1",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.74.0",
+    "vitest": "^5.1.2",
+    "wrangler": "^4.168.0"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.6.3",
+    "@scalar/hono-api-reference": "^0.12.25",
+    "hono": "^4.13.22",
+    "ip-address": "^10.7.6",
+    "lru-cache": "^11.5.3",
+    "maxmind": "^5.1.0",
+    "zod": "^4.6.7"
+  }
+}

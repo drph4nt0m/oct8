@@ -1,0 +1,11 @@
+services:
+  oct8-service:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - MAXMIND_LICENSE_KEY=${MAXMIND_LICENSE_KEY}
+    volumes:
+      - ./data:/usr/src/app/data
+    restart: unless-stopped
