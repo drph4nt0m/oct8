@@ -9,6 +9,24 @@ if [ -f .env ]; then
   set +a
 fi
 
+upload_r2() {
+  local key="$1"
+  local file="$2"
+  local attempt
+  for attempt in 1 2 3; do
+    echo "Uploading ${key} (attempt ${attempt}/3)..."
+    if npx wrangler r2 object put "oct8-data/${key}" --file "${file}" --remote; then
+      return 0
+    fi
+    if [ "${attempt}" -lt 3 ]; then
+      echo "Upload failed for ${key}; retrying in $((attempt * 5))s..."
+      sleep $((attempt * 5))
+    fi
+  done
+  echo "Upload failed for ${key} after 3 attempts" >&2
+  return 1
+}
+
 echo "--- Starting Data Update & Deployment ---"
 
 # Step 1: Generate WHOIS delegations first so build-data includes them in insight.bin
@@ -27,32 +45,26 @@ if ! command -v wrangler &> /dev/null && [ ! -x ./node_modules/.bin/wrangler ]; 
   exit 1
 fi
 
-echo "Uploading insight.bin..."
-npx wrangler r2 object put oct8-data/insight.bin --file data/insight.bin --remote
+upload_r2 "insight.bin" "data/insight.bin"
 
 if [ -f data/reputation.json ]; then
-  echo "Uploading reputation.json..."
-  npx wrangler r2 object put oct8-data/reputation.json --file data/reputation.json --remote
+  upload_r2 "reputation.json" "data/reputation.json"
 fi
 
 if [ -f data/whois.json ]; then
-  echo "Uploading whois.json..."
-  npx wrangler r2 object put oct8-data/whois.json --file data/whois.json --remote
+  upload_r2 "whois.json" "data/whois.json"
 fi
 
 if [ -f data/cloud.json ]; then
-  echo "Uploading cloud.json..."
-  npx wrangler r2 object put oct8-data/cloud.json --file data/cloud.json --remote
+  upload_r2 "cloud.json" "data/cloud.json"
 fi
 
 if [ -f data/GeoLite2-City.mmdb ]; then
-  echo "Uploading GeoLite2-City.mmdb..."
-  npx wrangler r2 object put oct8-data/GeoLite2-City.mmdb --file data/GeoLite2-City.mmdb --remote
+  upload_r2 "GeoLite2-City.mmdb" "data/GeoLite2-City.mmdb"
 fi
 
 if [ -f data/GeoLite2-ASN.mmdb ]; then
-  echo "Uploading GeoLite2-ASN.mmdb..."
-  npx wrangler r2 object put oct8-data/GeoLite2-ASN.mmdb --file data/GeoLite2-ASN.mmdb --remote
+  upload_r2 "GeoLite2-ASN.mmdb" "data/GeoLite2-ASN.mmdb"
 fi
 
 echo "--- Data Deployment Complete ---"

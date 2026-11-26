@@ -20,10 +20,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: 'npm'
@@ -43,9 +43,27 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          npx wrangler r2 object put oct8-data/insight.bin --file data/insight.bin --remote
-          npx wrangler r2 object put oct8-data/GeoLite2-City.mmdb --file data/GeoLite2-City.mmdb --remote
-          npx wrangler r2 object put oct8-data/GeoLite2-ASN.mmdb --file data/GeoLite2-ASN.mmdb --remote
-          npx wrangler r2 object put oct8-data/reputation.json --file data/reputation.json --remote
-          npx wrangler r2 object put oct8-data/whois.json --file data/whois.json --remote
-          npx wrangler r2 object put oct8-data/cloud.json --file data/cloud.json --remote
+          upload_r2() {
+            local key="$1"
+            local file="$2"
+            local attempt
+            for attempt in 1 2 3; do
+              echo "Uploading ${key} (attempt ${attempt}/3)..."
+              if npx wrangler r2 object put "oct8-data/${key}" --file "${file}" --remote; then
+                return 0
+              fi
+              if [ "${attempt}" -lt 3 ]; then
+                echo "Upload failed for ${key}; retrying in $((attempt * 5))s..."
+                sleep $((attempt * 5))
+              fi
+            done
+            echo "Upload failed for ${key} after 3 attempts" >&2
+            return 1
+          }
+
+          upload_r2 "insight.bin" "data/insight.bin"
+          upload_r2 "GeoLite2-City.mmdb" "data/GeoLite2-City.mmdb"
+          upload_r2 "GeoLite2-ASN.mmdb" "data/GeoLite2-ASN.mmdb"
+          upload_r2 "reputation.json" "data/reputation.json"
+          upload_r2 "whois.json" "data/whois.json"
+          upload_r2 "cloud.json" "data/cloud.json"
