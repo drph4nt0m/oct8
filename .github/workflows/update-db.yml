@@ -2,8 +2,8 @@ name: Update IP Databases
 
 on:
   schedule:
-    # Run daily at 00:00 UTC (Ensures fresh reputation and identity data)
-    - cron: '0 0 * * *'
+    # Run daily at 02:23 UTC (off-peak minute to avoid GitHub Actions top-of-hour/midnight drops)
+    - cron: '23 2 * * *'
   workflow_dispatch:
 
 permissions:
